@@ -446,6 +446,7 @@ TEST(ConnectionErrorTest, InvalidHost) {
 
   auto res = cli.Get("/");
   ASSERT_TRUE(res == nullptr);
+  EXPECT_EQ(Error::UnkwonError, cli.get_last_error());
 }
 
 TEST(ConnectionErrorTest, InvalidHost2) {
@@ -460,6 +461,7 @@ TEST(ConnectionErrorTest, InvalidHost2) {
 
   auto res = cli.Get("/");
   ASSERT_TRUE(res == nullptr);
+  EXPECT_EQ(Error::UnkwonError, cli.get_last_error());
 }
 
 TEST(ConnectionErrorTest, InvalidPort) {
@@ -476,6 +478,7 @@ TEST(ConnectionErrorTest, InvalidPort) {
 
   auto res = cli.Get("/");
   ASSERT_TRUE(res == nullptr);
+  EXPECT_EQ(Error::UnkwonError, cli.get_last_error());
 }
 
 TEST(ConnectionErrorTest, Timeout) {
@@ -492,6 +495,7 @@ TEST(ConnectionErrorTest, Timeout) {
 
   auto res = cli.Get("/");
   ASSERT_TRUE(res == nullptr);
+  EXPECT_EQ(Error::UnkwonError, cli.get_last_error());
 }
 
 TEST(CancelTest, NoCancel) {
@@ -526,6 +530,7 @@ TEST(CancelTest, WithCancelSmallPayload) {
   auto res = cli.Get("/range/32", [](uint64_t, uint64_t) { return false; });
   cli.set_connection_timeout(5);
   ASSERT_TRUE(res == nullptr);
+  EXPECT_EQ(Error::UnkwonError, cli.get_last_error());
 }
 
 TEST(CancelTest, WithCancelLargePayload) {
@@ -545,6 +550,7 @@ TEST(CancelTest, WithCancelLargePayload) {
   auto res = cli.Get("/range/65536", headers,
                      [&count](uint64_t, uint64_t) { return (count++ == 0); });
   ASSERT_TRUE(res == nullptr);
+  EXPECT_EQ(Error::UnkwonError, cli.get_last_error());
 }
 
 TEST(BaseAuthTest, FromHTTPWatch) {
@@ -703,6 +709,7 @@ TEST(TooManyRedirectTest, Redirect) {
   cli.set_follow_location(true);
   auto res = cli.Get("/redirect/21");
   ASSERT_TRUE(res == nullptr);
+  EXPECT_EQ(Error::UnkwonError, cli.get_last_error());
 }
 #endif
 
@@ -1568,6 +1575,7 @@ TEST_F(ServerTest, InvalidBaseDirMount) {
 TEST_F(ServerTest, EmptyRequest) {
   auto res = cli_.Get("");
   ASSERT_TRUE(res == nullptr);
+  EXPECT_EQ(Error::UnkwonError, cli_.get_last_error());
 }
 
 TEST_F(ServerTest, LongRequest) {
@@ -1853,6 +1861,7 @@ TEST_F(ServerTest, GetStreamedEndless) {
                         return false;
                       });
   ASSERT_TRUE(res == nullptr);
+  EXPECT_EQ(Error::UnkwonError, cli_.get_last_error());
 }
 
 TEST_F(ServerTest, ClientStop) {
@@ -1862,6 +1871,7 @@ TEST_F(ServerTest, ClientStop) {
       auto res = cli_.Get("/streamed-cancel",
                           [&](const char *, uint64_t) { return true; });
       ASSERT_TRUE(res == nullptr);
+      EXPECT_EQ(Error::UnkwonError, cli_.get_last_error());
     }));
   }
 
@@ -2014,7 +2024,8 @@ TEST_F(ServerTest, SlowPost) {
       },
       "text/plain");
 
-  ASSERT_FALSE(res != nullptr);
+  ASSERT_TRUE(res == nullptr);
+  EXPECT_EQ(Error::UnkwonError, cli_.get_last_error());
 }
 
 TEST_F(ServerTest, Put) {
@@ -2048,6 +2059,7 @@ TEST_F(ServerTest, PostWithContentProviderAbort) {
       "text/plain");
 
   ASSERT_TRUE(res == nullptr);
+  EXPECT_EQ(Error::UnkwonError, cli_.get_last_error());
 }
 
 #ifdef CPPHTTPLIB_ZLIB_SUPPORT
@@ -2077,6 +2089,7 @@ TEST_F(ServerTest, PostWithContentProviderWithGzipAbort) {
       "text/plain");
 
   ASSERT_TRUE(res == nullptr);
+  EXPECT_EQ(Error::UnkwonError, cli_.get_last_error());
 }
 
 TEST_F(ServerTest, PutLargeFileWithGzip) {
@@ -2949,6 +2962,7 @@ TEST(SSLClientTest, ServerCertificateVerification2) {
   cli.set_ca_cert_path("hello");
   auto res = cli.Get("/");
   ASSERT_TRUE(res == nullptr);
+  EXPECT_EQ(Error::UnkwonError, cli.get_last_error());
 }
 
 TEST(SSLClientTest, ServerCertificateVerification3) {
@@ -3103,6 +3117,7 @@ TEST(SSLClientServerTest, ClientCertMissing) {
   auto res = cli.Get("/test");
   cli.set_connection_timeout(30);
   ASSERT_TRUE(res == nullptr);
+  EXPECT_EQ(Error::UnkwonError, cli.get_last_error());
 
   svr.stop();
 
@@ -3151,6 +3166,7 @@ TEST(CleanupTest, WSACleanup) {
 TEST(InvalidScheme, SimpleInterface) {
   Client cli("scheme://yahoo.com");
   ASSERT_FALSE(cli.is_valid());
+  EXPECT_EQ(Error::UnkwonError, cli.get_last_error());
 }
 
 TEST(NoScheme, SimpleInterface) {
